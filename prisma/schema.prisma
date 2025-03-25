@@ -18,6 +18,7 @@ datasource db {
 model User {
   id        String   @id @default(uuid()) 
   email     String   @unique 
+  password  String   
   name      String?  
   createdAt DateTime @default(now()) 
   wallets   Wallet[] 
@@ -29,5 +30,5 @@ model Wallet {
   cryptoId  String   
   quantity  Float    
   user      User     @relation(fields: [userId], references: [id]) 
-  createdAt DateTime @default(now()) 
+  updatedAT DateTime @default(now()) 
 }
