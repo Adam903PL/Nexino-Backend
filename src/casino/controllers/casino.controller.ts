@@ -1,9 +1,20 @@
-import express ,{Request,Response}from "express";
+import express, { Request, Response } from "express";
 
-export const casinoController = express.Router()
+import { StatusCodes } from "http-status-codes";
 
 
 
-casinoController.get("/",async(req:Request,res:Response)=>{
-    res.json({message:"Sigma"}).status(200)
-})
+
+
+
+
+export const casinoController = express.Router();
+
+casinoController.get("/slot-machine", async (req: Request, res: Response) => {
+  try {
+    res.json({ message: "Sigma" }).status(StatusCodes.OK);
+  } catch (error) {
+    console.error("Error slot-machine:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+});
