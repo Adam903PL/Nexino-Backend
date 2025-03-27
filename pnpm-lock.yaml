@@ -41,6 +41,9 @@ importers:
       nodemon:
         specifier: ^3.1.9
         version: 3.1.9
+      slot-machine:
+        specifier: ^2.1.0
+        version: 2.1.0
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
@@ -856,6 +859,9 @@ packages:
   simple-update-notifier@2.0.0:
     resolution: {integrity: sha512-a2B9Y0KlNXl9u/vsW6sTIu9vGEpfKu2wRV6l1H3XEas/0gUIzGzBoP/IouTcUQbm9JWZLH3COxyn03TYlFax6w==}
     engines: {node: '>=10'}
+
+  slot-machine@2.1.0:
+    resolution: {integrity: sha512-TtwbH6rNlXolIPI0ALA0eq++XBkF8ISIkBCitBt1QfwgsOMoAcU6XRmkVXXzRcqPLVT6KyO02mwMTnPOec6M3Q==}
 
   statuses@2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
@@ -1729,6 +1735,8 @@ snapshots:
   simple-update-notifier@2.0.0:
     dependencies:
       semver: 7.7.1
+
+  slot-machine@2.1.0: {}
 
   statuses@2.0.1: {}
 
