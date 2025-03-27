@@ -120,28 +120,30 @@ async function getAllWallets() {
   }
 }
 
-export async function updateUserWallet(userId:string, cryptoId:string, winAmount:number) {
-    try {
-      const wallet = await prisma.wallet.findFirst({
-        where: { userId, cryptoId }
-      });
-      
-      if (!wallet) {
-        return {error:"Wallet not found",success:false}
-      }
-
-      const updatedWallet = await prisma.wallet.update({
-        where: { id: wallet.id },
-        data: { quantity: winAmount }
-      });
-      console.log(updatedWallet);
-      return updatedWallet;
-    } catch (error) {
-      console.error("Error updating wallet:", error);
-      throw error;
+export async function updateUserWallet(userId: string, cryptoId: string, Quantity: number) {
+  try {
+    const wallet = await prisma.wallet.findFirst({
+      where: { userId, cryptoId }
+    });
+   
+    if (!wallet) {
+      return { error: "Wallet not found" };
     }
+
+
+    const newQuantity = Math.max(0, wallet.quantity + Quantity);
+    
+    const updatedWallet = await prisma.wallet.update({
+      where: { id: wallet.id },
+      data: { quantity: newQuantity }
+    });
+   
+    return updatedWallet;
+  } catch (error) {
+    console.error("Error updating wallet:", error);
+    throw error;
   }
-  
+}
   
   
   

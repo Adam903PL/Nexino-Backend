@@ -17,12 +17,6 @@ import { getAllUsers, hashPassword } from "../../services/main.services";
 
 
 async function main() {
-  // await clearDatabase();    
-  // await createdUsers()
-  // await createUserWallet()
-  await getAllUsers();    
-  // await getAllWallets()
-
 
 }
 
