@@ -1,100 +1,149 @@
-import { PrismaClient } from '@prisma/client';
-import bcrypt from "bcrypt";
+import { prisma } from "../../prisma";
+import random from "random"
+import { RouletteDTO } from "../dto/Roulette.dto";
+import { RouletteResult } from "../types";
 
-const prisma = new PrismaClient();
+export const SlotMachine = (betAmount: number) => {
+
+  const SYMBOLS = [
+    { symbol: "🍇", weight: 0.40, value: 1.5 }, 
+    { symbol: "🍊", weight: 0.30, value: 2 },  
+    { symbol: "🍋", weight: 0.15, value: 3 },
+    { symbol: "🍉", weight: 0.10, value: 3.5 }, 
+    { symbol: "🎰", weight: 0.03, value: 4 },  
+    { symbol: "🍒", weight: 0.015, value: 10 },
+    { symbol: "💎", weight: 0.005, value: 15 }, 
+  ];
+
+  function weightedRandom(symbols: typeof SYMBOLS) {
+    const totalWeight = symbols.reduce((sum, item) => sum + item.weight, 0);
+    let random = Math.random() * totalWeight;
+
+    for (const item of symbols) {
+      if (random < item.weight) {
+        return item;
+      }
+      random -= item.weight;
+    }
+    return symbols[0];
+  }
+
+  const numberOfSpin = 3;
+  const drawnSymbols: string[] = [];
+  const drawnSymbolDetails: (typeof SYMBOLS)[0][] = [];
+
+  for (let i = 0; i < numberOfSpin; i++) {
+    const drawnSymbol = weightedRandom(SYMBOLS);
+    drawnSymbols.push(drawnSymbol.symbol);
+    drawnSymbolDetails.push(drawnSymbol);
+  }
 
 
-const hashPassword = async (password:string) => {
-  const salt = await bcrypt.genSalt(10);
-  return await bcrypt.hash(password, salt);
+  const allSymbolsSame = drawnSymbols.every(s => s === drawnSymbols[0]);
+  const twoSame = drawnSymbols.filter(s => s === drawnSymbols[0]).length >= 2;
+
+  let winAmount = 0;
+  
+  if (allSymbolsSame) {
+    winAmount = betAmount * drawnSymbolDetails[0].value * 2;
+  } else if (twoSame) {
+    winAmount = betAmount * drawnSymbolDetails[0].value;
+  }
+
+  const netProfit = winAmount - betAmount;
+
+  return {
+    drawnSymbols,
+    winAmount: Math.round(winAmount),
+    totalBet: betAmount,
+    netProfit: Math.round(netProfit),
+  };
 };
 
 
-async function clearDatabase() {
-  try {
-    await prisma.wallet.deleteMany(); 
-    await prisma.user.deleteMany(); 
 
-    console.log("Database cleared successfully.");
-  } catch (error) {
-    console.error("Error clearing database:", error);
-    throw error;
+
+export const RouletteMachine = ():RouletteResult | null => {
+  const randomNumber = random.int(0, 36); 
+  if(randomNumber === 0 ){
+    return({color:"Green",number:randomNumber})
   }
+  const randomColor = random.choice(["Black","Red"])
+  if(!randomColor){
+    return null
+  }
+
+  return {color:randomColor,number:randomNumber}
+
 }
 
-async function getAllUsers() {
-  try {
-    const users = await prisma.user.findMany();
-    console.log(users);
-    return users;
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    throw error;
+
+export function calculateRoulettePayout(betChoice: RouletteDTO, amount:number,result:RouletteResult) {
+  const { type, numbers } = betChoice.betChoice;
+
+
+  const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+  const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
+
+
+  switch (type) {
+    case "Red":
+      if (type === result.color) {
+        return amount*0.5; 
+      }
+      break;
+
+    case "Black":
+      if (type === result.color) {
+        return amount*0.5;
+      }
+      break;
+
+    case "Green":
+      if (result.number === 0) {
+        return amount * 35; 
+      }
+      break;
+
+    case "Straight":
+      if (numbers && numbers[0] === result.number) {
+        return amount * 35; 
+      }
+      break;
+
+    case "Split":
+      if (numbers && numbers.includes(result.number)) {
+        return amount * 17; 
+      }
+      break;
+
+    case "Street":
+      if (numbers && numbers.includes(result.number)) {
+        return amount * 11; 
+      }
+      break;
+
+    case "Corner":
+      if (numbers && numbers.includes(result.number)) {
+        return amount * 8; 
+      }
+      break;
+
+    case "Line":
+      if (numbers && numbers.includes(result.number)) {
+        return amount * 5; 
+      }
+      break;
+
+    default:
+      return null
   }
-}
 
-async function getAllWallets() {
-  try {
-    const wallets = await prisma.wallet.findMany();
-    console.log(wallets);
-    return wallets;
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    throw error;
-  }
-}
-
-async function createdUsers() {
-  try {
-    const hashedPassword = await hashPassword("dupa123");
-
-    const createdUsers = await prisma.user.createMany({
-      data: [
-        { email: "user1@example.com", name: "User 1", password: hashedPassword },
-        { email: "user2@example.com", name: "User 2", password: hashedPassword },
-      ],
-    });
-
-
-
-    console.log("Created users:", createdUsers);
-    return createdUsers;
-  } catch (error) {
-    console.error("Error during adding new users to database:", error);
-    throw error;
-  }
-}
-
-async function createUserWallet() {
-  try {
-    const createdWallets = await prisma.wallet.createMany({
-      data: [
-        { userId: "637512c2-64e1-4b58-82ce-935f29336520", cryptoId: "bitcoin", quantity: 1.4 },
-        { userId: "637512c2-64e1-4b58-82ce-935f29336520", cryptoId: "ethereum", quantity: 100.2 },
-        { userId: "637512c2-64e1-4b58-82ce-935f29336520", cryptoId: "tether", quantity: 120.13 },
-        { userId: "5d2b6e2f-0c2b-410d-a49c-eca8d73a25e6", cryptoId: "bitcoin", quantity: 1.4 },
-        { userId: "5d2b6e2f-0c2b-410d-a49c-eca8d73a25e6", cryptoId: "ethereum", quantity: 100.2 },
-        { userId: "5d2b6e2f-0c2b-410d-a49c-eca8d73a25e6", cryptoId: "tether", quantity: 120.13 },
-      ],
-    });
-
-    console.log("Created wallets:", createdWallets);
-    return createdWallets;
-  } catch (error) {
-    console.error("Error during adding new wallets to database:", error);
-    throw error;
-  } finally {
-    await prisma.$disconnect();
-  }
+  // Jeśli nie wygrał, strata = -stawka
+  return -amount;
 }
 
 async function main() {
-  await clearDatabase();    
-  await createdUsers()
-  // await createUserWallet()
-  await getAllUsers();    
-  // await getAllWallets()
-
 
 }
 
