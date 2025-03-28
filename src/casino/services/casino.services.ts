@@ -139,7 +139,7 @@ export function calculateRoulettePayout(betChoice: RouletteDTO, amount:number,re
       return null
   }
 
-  // Jeśli nie wygrał, strata = -stawka
+  
   return -amount;
 }
 

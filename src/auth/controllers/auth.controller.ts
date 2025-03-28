@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { ENV } from "../../config/env";
 import { StatusCodes } from "http-status-codes";
+import { redis } from "../../config/redis";
 export const authController = express.Router();
 interface User {
   id: string;
@@ -59,6 +60,49 @@ authController.post("/generate-token", async (req: Request, res: Response) => {
   }
 });
 
+
+authController.delete("/", async (req: Request, res: Response) => {
+  try {
+    const { email, password, userName } = req.body;
+    
+  
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      res.status(401).json({ message: "Invalid password" });
+      return
+    }
+
+    const deletedUser = await prisma.user.delete({
+      where: { 
+        email: email,
+        name: userName 
+      },
+    });
+
+    res.json({ 
+      message: "User successfully deleted", 
+      deletedUser: { 
+        id: deletedUser.id, 
+        email: deletedUser.email 
+      } 
+    });
+
+  } catch (error) {
+    console.error("Delete user error:", error);
+    res.status(500).json({ message: "Error deleting user" });
+  }
+});
+
 authController.post("/register", async (req: Request, res: Response) => {
   try {
     const { email, password, userName } = req.body;
@@ -71,6 +115,18 @@ authController.post("/register", async (req: Request, res: Response) => {
         password: hashedPassword
       },
     });
+
+    const getUserId = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true } 
+    })
+    const userId = getUserId?.id
+    const addUserData = await redis.hset(`user:${userId}`, {
+      crapsGame: JSON.stringify({
+        status: "not-in-game",
+      })
+    });
+
 
     res.status(StatusCodes.OK).json(createdUser);
   } catch (error) {

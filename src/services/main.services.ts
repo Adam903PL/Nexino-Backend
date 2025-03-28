@@ -162,8 +162,8 @@ export async function updateUserWallet(userId: string, cryptoId: string, Quantit
 
 
 async function main() {
-//   await clearDatabase()
-//   await createdUsers()
+  // await clearDatabase()
+  // await createdUsers()
   // await getAllUsers()
 //   await createUserWallet()
 //   await getAllWallets()
