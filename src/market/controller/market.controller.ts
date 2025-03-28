@@ -1,0 +1,70 @@
+import express, {Request,Response} from "express";
+import axios from 'axios';
+import {StatusCodes} from "http-status-codes";
+import {getUserID, updateUserWallet} from "../../services/main.services";
+import {plainToInstance} from "class-transformer";
+import {WalletDTO} from "../../wallet/dto/Wallet.dto";
+import {validate} from "class-validator";
+
+const router = express.Router();
+
+router.get("/crypto-price/:coin", async (req:Request, res:Response) => {
+    try {
+        const coinId = req.params.coin || 'bitcoin';
+        const response = await axios.get(`https://api.coingecko.com/api/v3/coins/${coinId}`);
+        const { id, symbol, name, market_data } = response.data;
+        res.json({
+            id,
+            symbol,
+            name,
+            current_price: market_data.current_price.usd,
+            price_change_24h: market_data.price_change_percentage_24h
+        });
+    } catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to fetch crypto data" });
+    }
+});
+
+router.post("/buy/:coin", async (req:Request, res:Response) => {
+    try {
+        const token = req.headers.authorization?.split(" ")[1];
+        if (!token) {
+            res.status(StatusCodes.UNAUTHORIZED).json({ error: "No token provided" });
+            return;
+        }
+
+        const userId = (await getUserID(token)).userId;
+        const coinId = req.params.coin;
+        const { quantity } = req.body;
+
+        const validated = await plainToInstance(WalletDTO, {
+            userId,
+            cryptoId: coinId,
+            quantity
+        });
+
+        const errors = await validate(validated);
+        if (errors.length > 0) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+                errors: errors.map((error) => ({
+                    property: error.property,
+                    constraints: error.constraints,
+                })),
+            });
+            return;
+        }
+
+        const updatedWallet = await updateUserWallet(userId, coinId, quantity);
+        if ("error" in updatedWallet) {
+            res.status(StatusCodes.BAD_REQUEST).json(updatedWallet);
+            return;
+        }
+
+        res.json(updatedWallet);
+    } catch (error) {
+        console.error("Error buying crypto:", error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error buying crypto" });
+    }
+});
+
+export const marketController = router;
