@@ -20,3 +20,9 @@ interface SlotMachineBetRequest {
   bet: string;
   cryptoId: string;
 }
+
+
+export interface RouletteResult {
+  color:string,
+  number:number
+}

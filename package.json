@@ -25,6 +25,8 @@
     "http-status-codes": "^2.3.0",
     "jwt-decode": "^4.0.0",
     "nodemon": "^3.1.9",
+    "random": "^5.3.0",
+    "reflect-metadata": "^0.2.2",
     "slot-machine": "^2.1.0",
     "uuid": "^11.1.0"
   },
