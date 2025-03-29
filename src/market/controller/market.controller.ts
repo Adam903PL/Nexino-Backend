@@ -67,4 +67,47 @@ router.post("/buy/:coin", async (req:Request, res:Response) => {
     }
 });
 
+
+router.post("/sell/:coin", async (req:Request, res:Response) => {
+    try {
+        const token = req.headers.authorization?.split(" ")[1];
+        if (!token) {
+            res.status(StatusCodes.UNAUTHORIZED).json({ error: "No token provided" });
+            return;
+        }
+
+        const userId = (await getUserID(token)).userId;
+        const coinId = req.params.coin;
+        const { quantity } = req.body;
+
+        const validated = await plainToInstance(WalletDTO, {
+            userId,
+            cryptoId: coinId,
+            quantity
+        });
+
+        const errors = await validate(validated);
+        if (errors.length > 0) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+                errors: errors.map((error) => ({
+                    property: error.property,
+                    constraints: error.constraints,
+                })),
+            });
+            return;
+        }
+
+        const updatedWallet = await updateUserWallet(userId, coinId, -quantity);
+        if ("error" in updatedWallet) {
+            res.status(StatusCodes.BAD_REQUEST).json(updatedWallet);
+            return;
+        }
+
+        res.json(updatedWallet);
+    } catch (error) {
+        console.error("Error selling crypto:", error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error selling crypto" });
+    }
+});
+
 export const marketController = router;

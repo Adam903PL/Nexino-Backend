@@ -16,6 +16,7 @@
     "@auth/express": "^0.9.0",
     "@auth/prisma-adapter": "^2.8.0",
     "@prisma/client": "^6.5.0",
+    "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.3",
@@ -25,11 +26,13 @@
     "express": "^4.21.2",
     "http-status-codes": "^2.3.0",
     "ioredis": "^5.6.0",
+    "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "nodemon": "^3.1.9",
     "random": "^5.3.0",
     "reflect-metadata": "^0.2.2",
     "slot-machine": "^2.1.0",
+    "ts-node": "^10.9.2",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
