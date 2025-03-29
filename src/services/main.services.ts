@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { ENV } from "../config/env";
 import { prisma } from "../prisma";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export async function getUserID(token: string) {
   const decoded = jwt.verify(token, ENV.JWT_SECRET || "fallback_secret") as {
@@ -170,3 +170,4 @@ async function main() {
 //   await getUserWallet("98e5df30-5e99-4ef4-b06c-c4dbc86558ce")
 }
 
+main()
