@@ -154,4 +154,21 @@ router.get("/top-movers", async (req:Request,res:Response) => {
     }
 })
 
+router.get("/history/:coin", async (req:Request,res:Response) => {
+    try {
+        const coinId = req.params.coin;
+        const days = req.query.days || "7";
+
+        const response = await axios.get(`https://api.coingecko.com/api/v3/coins/${coinId}/market_chart`,{
+            params:{
+                vs_currency: "usd",
+                days: days,
+            }
+        });
+        res.json(response.data);
+    }catch (error){
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: "Failed to fetch coin history"})
+    }
+});
+
 export const marketController = router;
