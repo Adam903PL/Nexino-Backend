@@ -8,7 +8,7 @@ import {validate} from "class-validator";
 
 const router = express.Router();
 
-router.get("/crypto-price/:coin", async (req:Request, res:Response) => {
+router.get("/price/:coin", async (req:Request, res:Response) => {
     try {
         const coinId = req.params.coin || 'bitcoin';
         const response = await axios.get(`https://api.coingecko.com/api/v3/coins/${coinId}`);
@@ -107,6 +107,24 @@ router.post("/sell/:coin", async (req:Request, res:Response) => {
     } catch (error) {
         console.error("Error selling crypto:", error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error selling crypto" });
+    }
+});
+
+router.get("/trends", async (req: Request, res: Response) => {
+    try {
+        const response = await axios.get("https://api.coingecko.com/api/v3/coins/markets", {
+            params: {
+                vs_currency: 'usd',
+                order: 'market_cap_desc',
+                per_page: 20,
+                page: 1,
+                sparkline: false,
+                price_change_percentage: '24h'
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to fetch market trends" });
     }
 });
 
