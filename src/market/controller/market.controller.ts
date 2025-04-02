@@ -128,4 +128,30 @@ router.get("/trends", async (req: Request, res: Response) => {
     }
 });
 
+router.get("/top-movers", async (req:Request,res:Response) => {
+    try {
+        const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets', {
+            params: {
+                vs_currency: 'usd',
+                order: 'market_cap_desc',
+                per_page: 100,
+                page: 1,
+                sparkline: false,
+                price_change_percentage: '24h'
+            }
+        })
+        const coins = response.data
+
+        const gainers = [...coins].sort((a, b) => b.price_change_percentage_24h - a.price_change_percentage_24h).slice(0, 5);
+        const losers = [...coins].sort((a, b) => a.price_change_percentage_24h - b.price_change_percentage_24h).slice(0, 5);
+
+        res.json({
+            gainers,
+            losers
+        });
+    }catch (error){
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to fetch top movers" });
+    }
+})
+
 export const marketController = router;
