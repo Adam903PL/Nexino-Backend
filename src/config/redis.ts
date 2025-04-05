@@ -13,4 +13,4 @@ export const redis = new Redis(redisConfig)
 
 redis.on('error', (err) => {
     console.error('Redis Error:', err);
-  });
+  });   

@@ -1,7 +1,9 @@
 import { prisma } from "../../prisma";
 import random from "random"
 import { RouletteDTO } from "../dto/Roulette.dto";
-import { RouletteResult } from "../types";
+import { diceResult, RouletteResult } from "../types";
+import { DiceGameState } from "../types/dice";
+import { redis } from "../../config/redis";
 
 export const SlotMachine = (betAmount: number) => {
 
@@ -142,6 +144,30 @@ export function calculateRoulettePayout(betChoice: RouletteDTO, amount:number,re
   
   return -amount;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 async function main() {
 
