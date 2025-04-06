@@ -5,3 +5,5 @@ prisma/migrations/*
 test.js
 
 /dist/
+
+/src/services/test.services.js
