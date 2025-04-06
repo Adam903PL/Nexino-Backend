@@ -26,3 +26,18 @@ export interface RouletteResult {
   color:string,
   number:number
 }
+
+export interface diceResult {
+  firstDice:number,
+  secondDice:number
+}
+
+
+
+export interface CrapsGame {
+  status: 'in-game' | 'not-in-game' | 'completed';
+}
+
+
+
+
