@@ -120,40 +120,93 @@ async function getAllWallets() {
   }
 }
 
-export async function updateUserWallet(userId: string, cryptoId: string, Quantity: number) {
+export async function updateUserWallet(
+  userId: string,
+  cryptoId: string,
+  Quantity: number
+) {
   try {
     const wallet = await prisma.wallet.findFirst({
-      where: { userId, cryptoId }
+      where: { userId, cryptoId },
     });
-   
+
     if (!wallet) {
       return { error: "Wallet not found" };
     }
     const newQuantity = Math.max(0, wallet.quantity + Quantity);
-    
+
     const updatedWallet = await prisma.wallet.update({
       where: { id: wallet.id },
-      data: { quantity: newQuantity }
+      data: { quantity: newQuantity },
     });
-   
+
     return updatedWallet;
   } catch (error) {
     console.error("Error updating wallet:", error);
     throw error;
   }
 }
-  
 
-  
+export async function UpdateUserMoney(userId: string, MoneyToUpdate: number) {
+  const Money = await prisma.user.update({
+    where: { id: userId },
+    data: { money: { increment: MoneyToUpdate } },
+  });
+  return Money.money;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 async function main() {
   // await clearDatabase()
   // await createdUsers()
   // await getAllUsers()
-//   await createUserWallet()
-//   await getAllWallets()
-//   await getUserWallet("98e5df30-5e99-4ef4-b06c-c4dbc86558ce")
-}
+  //   await createUserWallet()
+  //   await getAllWallets()
+  //   await getUserWallet("98e5df30-5e99-4ef4-b06c-c4dbc86558ce")
+  // const Item = await prisma.equipment.findMany({
+  //   where: { userId: "98e5df30-5e99-4ef4-b06c-c4dbc86558ce", gunId: 14 },
+  // });
+  // console.log(Item);
 
-main()
+  const items = await prisma.equipment.findMany({
+    where: {
+      userId: "98e5df30-5e99-4ef4-b06c-c4dbc86558ce",
+    },
+  });
+
+  let MoneyToUpdate = 0;
+
+
+}

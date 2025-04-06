@@ -2,9 +2,9 @@ import { NextFunction, type Request, type Response } from "express";
 import { getUserID, updateUserWallet } from "../services/main.services";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
-import { CryptoWallet } from "../casino/types";
+import { CryptoWallet } from "../api/casino/types";
 import { getUserWallet } from "../services/main.services";
-import { SlotMachinePOST_DTO } from "../casino/dto/SlotMachine.dto";
+import { SlotMachinePOST_DTO } from "../api/casino/dto/SlotMachine.dto";
 import { StatusCodes } from "http-status-codes";
 import { redis } from "../config/redis";
 import express from "express" 
