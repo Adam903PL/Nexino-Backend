@@ -129,8 +129,6 @@ export async function updateUserWallet(userId: string, cryptoId: string, Quantit
     if (!wallet) {
       return { error: "Wallet not found" };
     }
-
-
     const newQuantity = Math.max(0, wallet.quantity + Quantity);
     
     const updatedWallet = await prisma.wallet.update({
@@ -145,20 +143,8 @@ export async function updateUserWallet(userId: string, cryptoId: string, Quantit
   }
 }
   
+
   
-  
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 async function main() {
@@ -170,3 +156,4 @@ async function main() {
 //   await getUserWallet("98e5df30-5e99-4ef4-b06c-c4dbc86558ce")
 }
 
+main()

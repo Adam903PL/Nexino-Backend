@@ -1,9 +1,9 @@
-import { prisma } from "../../prisma";
+import { prisma } from "../../../prisma";
 import random from "random"
 import { RouletteDTO } from "../dto/Roulette.dto";
 import { diceResult, RouletteResult } from "../types";
 import { DiceGameState } from "../types/dice";
-import { redis } from "../../config/redis";
+import { redis } from "../../../config/redis";
 
 export const SlotMachine = (betAmount: number) => {
 

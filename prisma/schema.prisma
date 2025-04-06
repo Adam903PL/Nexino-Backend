@@ -19,6 +19,7 @@ model User {
   email     String      @unique
   password  String
   name      String?
+  money Float @default(0)
   createdAt DateTime    @default(now())
   wallets   Wallet[]
   equipment Equipment[]
@@ -37,5 +38,7 @@ model Equipment {
   id       String @id @default(uuid())
   userId   String
   gunId    Int
+  gunName  String
+  gunPrice Float
   user     User   @relation(fields: [userId], references: [id])
 }

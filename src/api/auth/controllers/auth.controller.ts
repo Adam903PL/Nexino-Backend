@@ -1,10 +1,10 @@
 import express, { Request, Response } from "express";
-import { prisma } from "../../prisma";
+import { prisma } from "../../../prisma";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { ENV } from "../../config/env";
+import { ENV } from "../../../config/env";
 import { StatusCodes } from "http-status-codes";
-import { redis } from "../../config/redis";
+import { redis } from "../../../config/redis";
 export const authController = express.Router();
 interface User {
   id: string;

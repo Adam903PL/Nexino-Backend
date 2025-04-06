@@ -10,12 +10,12 @@ import {
   getUserID,
   getUserWallet,
   updateUserWallet,
-} from "../../services/main.services";
+} from "../../../services/main.services";
 import { CryptoWallet } from "../types";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { RouletteDTO } from "../dto/Roulette.dto";
-import { casinoMiddleware, CasinoRequest } from "../../middlewares/casinoMiddleware";
+import { casinoMiddleware, CasinoRequest } from "../../../middlewares/casinoMiddleware";
 
 
 export const casinoController = express.Router();
