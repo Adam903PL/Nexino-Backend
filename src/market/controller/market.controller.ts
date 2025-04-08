@@ -3,8 +3,10 @@ import axios from 'axios';
 import {StatusCodes} from "http-status-codes";
 import {getUserID, updateUserWallet} from "../../services/main.services";
 import {plainToInstance} from "class-transformer";
-import {WalletDTO} from "../../wallet/dto/Wallet.dto";
+import {WalletDTO} from "../../api/wallet/dto/Wallet.dto";
 import {validate} from "class-validator";
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 const router = express.Router();
 
@@ -168,6 +170,61 @@ router.get("/history/:coin", async (req:Request,res:Response) => {
         res.json(response.data);
     }catch (error){
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: "Failed to fetch coin history"})
+    }
+});
+
+
+router.post("/wishlist/create", async (req: Request, res: Response) => {
+    try {
+        const token = req.headers.authorization?.split(" ")[1];
+        if (!token) {
+            res.status(StatusCodes.UNAUTHORIZED).json({ error: "No token provided" });
+            return;
+        }
+
+        const userId = (await getUserID(token)).userId;
+        const { wishlistName, coinId } = req.body;
+
+        if (!wishlistName) {
+            res.status(StatusCodes.BAD_REQUEST).json({ error: "Wishlist name is required" });
+            return;
+        }
+
+        // Create a new wishlist in database
+        const newWishlist = await prisma.wishlist.create({
+            data: {
+                userId,
+                wishlistName,
+            }
+        });
+
+        // If a coinId was provided, add it to the wishlist
+        if (coinId) {
+            try {
+                // Verify the coin exists
+                await axios.get(`https://api.coingecko.com/api/v3/coins/${coinId}`);
+
+                // Add to wishlist items
+                await prisma.wishlistItem.create({
+                    data: {
+                        wishlistId: newWishlist.id,
+                        coinId
+                    }
+                });
+            } catch (error) {
+                // If coin validation fails, we still created the wishlist
+                // so we'll just return a warning
+                return res.status(StatusCodes.CREATED).json({
+                    ...newWishlist,
+                    warning: "Wishlist created but coin could not be added: Invalid coin ID"
+                });
+            }
+        }
+
+        res.status(StatusCodes.CREATED).json(newWishlist);
+    } catch (error) {
+        console.error("Error creating wishlist:", error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error creating wishlist" });
     }
 });
 

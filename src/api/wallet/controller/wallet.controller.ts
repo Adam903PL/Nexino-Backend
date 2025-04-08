@@ -4,7 +4,7 @@ import {
   getUserID,
   getUserWallet,
   updateUserWallet,
-} from "../../services/main.services";
+} from "../../../services/main.services";
 import { plainToInstance } from "class-transformer";
 import { WalletDTO } from "../dto/Wallet.dto";
 import { validate } from "class-validator";
