@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import {
+  addCrypto,
   getUserID,
   getUserWallet,
   updateUserWallet,
@@ -28,7 +29,9 @@ walletController.get("/", async (req: Request, res: Response) => {
   }
 });
 
-walletController.put("/", async (req: Request, res: Response) => {
+
+
+walletController.post("/", async (req: Request, res: Response) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
@@ -38,6 +41,59 @@ walletController.put("/", async (req: Request, res: Response) => {
     const userId = (await getUserID(token)).userId;
     const { cryptoId, quantity } = req.body;
 
+    if(!cryptoId || ! quantity){
+      res.json({message:"Missing cryptoID or quantity in body"}).status(StatusCodes.BAD_REQUEST)
+      return
+    }
+    
+    const validated = plainToInstance(WalletDTO, {
+      userId,
+      cryptoId,
+      quantity,
+    });
+
+    const errors = await validate(validated);
+    if (errors.length > 0) {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        errors: errors.map((error) => ({
+          property: error.property,
+          constraints: error.constraints,
+        })),
+      });
+      return;
+    }
+
+    const updatedWallet = await addCrypto(
+      validated.userId,
+      validated.cryptoId,
+      validated.quantity
+    );
+    if ('error' in updatedWallet) {
+      res.status(StatusCodes.BAD_REQUEST).json({ updatedWallet });
+      return;
+    }
+    res.status(StatusCodes.OK).json({message:`Added ${updatedWallet.cryptoId}-${updatedWallet.quantity}` });
+  } catch (err) {
+    res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+    console.error("Error in wallet get:", err);
+  }
+});
+
+
+
+walletController.put("/", async (req: Request, res: Response) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      res.json(StatusCodes.UNAUTHORIZED);
+      return;
+    }
+    const userId = (await getUserID(token)).userId;
+    const { cryptoId, quantity } = req.body;
+    if(!cryptoId || ! quantity){
+      res.json({message:"Missing cryptoID or quantity in body"}).status(StatusCodes.BAD_REQUEST)
+      return
+    }
     const validated = plainToInstance(WalletDTO, {
       userId,
       cryptoId,
