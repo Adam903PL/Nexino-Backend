@@ -1,3 +1,4 @@
+import { redis } from "../../../config/redis";
 import { prisma } from "../../../prisma";
 
 export const SellItem = async (
@@ -61,3 +62,24 @@ export const SellItem = async (
     return { success: false, message: "An error occurred while selling items" };
   }
 };
+
+
+
+export async function getAllGuns() {
+  try {
+    
+    const gunIds = await redis.smembers('guns');
+        
+    const gunsData = await Promise.all(
+      gunIds.map(async (id) => {
+        const gunData = await redis.hgetall(`gun:${id}`);
+        return { id, ...gunData };
+      })
+    );
+    
+    return gunsData;
+  } catch (error) {
+    console.error("Error fetching guns:", error);
+    throw error;
+  }
+}
