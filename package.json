@@ -40,6 +40,7 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.13.14",
     "@types/request-ip": "^0.0.41",
-    "prisma": "^6.5.0"
+    "prisma": "^6.5.0",
+    "typescript": "^5.8.3"
   }
 }
