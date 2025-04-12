@@ -443,4 +443,37 @@ router.get("/wishlist/:wishlistId", async (req: Request, res: Response) => {
   }
 });
 
+router.delete("/wishlist/deletecoin/:wishlistId/:coinId", async (req:Request,res:Response) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ error: "No token provided" });
+      return;
+    }
+
+    await getUserID(token);
+    const wishlistId = req.params.wishlistId;
+    const coinId = req.params.coinId;
+
+    const deletedItem = await prisma.wishlistItem.deleteMany({
+      where:{
+        wishlistId,
+        coinId,
+      }
+    });
+
+    if(deletedItem.count === 0){
+      res.status(StatusCodes.NOT_FOUND).json({error: "coin not found in wishlist"});
+      return;
+    }
+
+    res.status(StatusCodes.OK).json({message: "coin deleted successfuly"})
+
+
+  }catch (error){
+    console.error("Error removing coin from wishlist:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error removing coin from wishlist" });
+  }
+})
+
 export const marketController = router;
