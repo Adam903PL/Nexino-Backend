@@ -476,4 +476,26 @@ router.delete("/wishlist/deletecoin/:wishlistId/:coinId", async (req:Request,res
   }
 })
 
+router.delete("/wishlist/:wishlistId", async (req:Request,res:Response) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ error: "No token provided" });
+      return;
+    }
+    await getUserID(token);
+    const wishlistId = req.params.wishlistId;
+
+    await prisma.wishlist.delete({
+      where:{id:wishlistId}
+    })
+
+    res.status(StatusCodes.OK).json({message: `wishlist ${wishlistId} was deleted`})
+
+  }catch (error){
+    console.error("Error deleting wishlist:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error deleting wishlist" });
+  }
+})
+
 export const marketController = router;
