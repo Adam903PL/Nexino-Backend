@@ -265,4 +265,102 @@ router.get("/history/:coin", async (req: Request, res: Response) => {
   }
 });
 
+router.post("/wishlist/create", async (req: Request, res: Response) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ error: "No token provided" });
+      return;
+    }
+
+    const userId = (await getUserID(token)).userId;
+    const { wishlistName, coinId } = req.body;
+
+    if (!wishlistName) {
+      res.status(StatusCodes.BAD_REQUEST).json({ error: "Wishlist name is required" });
+      return;
+    }
+
+    // Create a new wishlist in database
+    const newWishlist = await prisma.wishlist.create({
+      data: {
+        userId,
+        wishlistName,
+      }
+    });
+
+    // If a coinId was provided, add it to the wishlist
+    if (coinId) {
+      try {
+        // Verify the coin exists
+        await axios.get(`https://api.coingecko.com/api/v3/coins/${coinId}`);
+
+        // Add to wishlist items
+        await prisma.wishlistItem.create({
+          data: {
+            wishlistId: newWishlist.id,
+            coinId
+          }
+        });
+      } catch (error) {
+        // If coin validation fails, we still created the wishlist
+        // so we'll just return a warning
+        res.status(StatusCodes.CREATED).json({
+          ...newWishlist,
+          warning: "Wishlist created but coin could not be added: Invalid coin ID"
+        });
+        return
+      }
+    }
+
+    res.status(StatusCodes.CREATED).json(newWishlist);
+  } catch (error) {
+    console.error("Error creating wishlist:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error creating wishlist" });
+  }
+});
+
+
+router.post("/wishlist/addCoin/:wishlistId", async (req:Request,res:Response) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ error: "No token provided" });
+      return;
+    }
+
+    await getUserID(token);
+    const wishlistId = req.params.wishlistId;
+    const {coinId} = req.body;
+
+    if(!coinId){
+      res.status(StatusCodes.BAD_REQUEST).json({error: "coin Id is required"})
+      return;
+    }
+
+    try {
+      await axios.get(`https://api.coingecko.com/api/v3/coins/${coinId}`);
+    }catch (error){
+      res.status(StatusCodes.BAD_REQUEST).json({error: "invalid coin Id"});
+      return;
+    }
+
+    try {
+        const wishlistItem = await prisma.wishlistItem.create({
+          data: {
+            wishlistId,
+            coinId,
+          }
+        })
+      res.status(StatusCodes.CREATED).json(wishlistItem)
+    }catch (error){
+      res.status(StatusCodes.BAD_REQUEST).json({error: "coin is already in wishlist"})
+    }
+
+  }catch (error){
+    console.error("Error adding coin to wishlist:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error adding coin to wishlist" });
+  }
+})
+
 export const marketController = router;

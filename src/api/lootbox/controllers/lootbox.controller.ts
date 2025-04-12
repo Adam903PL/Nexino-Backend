@@ -6,7 +6,7 @@ import { prisma } from "../../../prisma";
 import { getUserID, UpdateUserMoney } from "../../../services/main.services";
 import { Guns, Cases } from "../data/Items";
 import random from "random";
-import { SellItem } from "../services/lootbox.services";
+import { getAllGuns, SellItem } from "../services/lootbox.services";
 import { redis } from "../../../config/redis";
 
 export const LootBoxController = express.Router();
@@ -329,3 +329,30 @@ LootBoxController.post("/sell-all-item",
     }
   }
 );
+
+
+
+
+LootBoxController.get("/guns",async (req:Request,res:Response)=>{
+  try{
+    const guns = await getAllGuns()
+    if(!guns){
+      res.json({message:"Error getting guns "}).status(StatusCodes.INTERNAL_SERVER_ERROR)
+      
+      return
+    }
+
+    res.json(guns)
+    return
+  }catch (error) {
+    console.error("Error getting guns:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      error: "Error getting guns",
+    });
+  }
+})
+
+
+
+
+

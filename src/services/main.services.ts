@@ -131,13 +131,30 @@ export async function updateUserWallet(
     });
 
     if (!wallet) {
-      return { error: "Wallet not found" };
+      return { error: "You dont have this crypto in your wallet" };
     }
     const newQuantity = Math.max(0, wallet.quantity + Quantity);
 
     const updatedWallet = await prisma.wallet.update({
       where: { id: wallet.id },
       data: { quantity: newQuantity },
+    });
+
+    return updatedWallet;
+  } catch (error) {
+    console.error("Error updating wallet:", error);
+    throw error;
+  }
+}
+
+export async function addCrypto(
+  userId: string,
+  cryptoId: string,
+  quantity: number
+) {
+  try {
+    const updatedWallet = await prisma.wallet.create({
+      data: { userId, cryptoId, quantity },
     });
 
     return updatedWallet;
@@ -154,39 +171,6 @@ export async function UpdateUserMoney(userId: string, MoneyToUpdate: number) {
   });
   return Money.money;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 async function main() {
   // await clearDatabase()
@@ -207,8 +191,10 @@ async function main() {
     },
   });
 
+
+
   let MoneyToUpdate = 0;
-
-
 }
+
+
 

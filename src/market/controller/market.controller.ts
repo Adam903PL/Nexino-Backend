@@ -214,10 +214,11 @@ router.post("/wishlist/create", async (req: Request, res: Response) => {
             } catch (error) {
                 // If coin validation fails, we still created the wishlist
                 // so we'll just return a warning
-                return res.status(StatusCodes.CREATED).json({
+                res.status(StatusCodes.CREATED).json({
                     ...newWishlist,
                     warning: "Wishlist created but coin could not be added: Invalid coin ID"
                 });
+                return
             }
         }
 
@@ -228,4 +229,10 @@ router.post("/wishlist/create", async (req: Request, res: Response) => {
     }
 });
 
+
+
+
+router.post("/wishlist/create",async(req:Request,res:Response)=>{
+    res.json({message:"Nigger"})
+})
 export const marketController = router;
