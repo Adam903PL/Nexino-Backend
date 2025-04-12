@@ -382,8 +382,65 @@ router.get("/wishlists",async (req:Request,res :Response) => {
 
   }catch (error){
     console.error("Error while fetching wishlist:", error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error while fetching wishlist" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error while fetching wishlists" });
   }
 })
+
+router.get("/wishlist/:wishlistId", async (req: Request, res: Response) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ error: "No token provided" });
+      return;
+    }
+
+    await getUserID(token);
+    const wishlistId = req.params.wishlistId;
+    const wishlist = await prisma.wishlist.findUnique({
+      where: { id: wishlistId },
+      include: {
+        items: true
+      }
+    });
+
+    if (!wishlist) {
+      res.status(StatusCodes.NOT_FOUND).json({ error: "Wishlist not found" });
+      return;
+    }
+
+    if (wishlist.items.length > 0) {
+      const coinDetailsPromises = wishlist.items.map(item =>
+          axios.get(`https://api.coingecko.com/api/v3/coins/${item.coinId}`)
+              .then(response => {
+                const { id, symbol, name, market_data } = response.data;
+                return {
+                  id,
+                  symbol,
+                  name,
+                  current_price: market_data.current_price.usd,
+                  price_change_24h: market_data.price_change_percentage_24h
+                };
+              })
+              .catch(() => null)
+      );
+
+      const coinDetails = await Promise.all(coinDetailsPromises);
+      const itemsWithDetails = wishlist.items.map((item, index) => ({
+        ...item,
+        coinDetails: coinDetails[index]
+      }));
+
+      res.json({
+        ...wishlist,
+        items: itemsWithDetails
+      });
+    } else {
+      res.json(wishlist);
+    }
+  } catch (error) {
+    console.error("Error while fetching wishlist:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error while fetching wishlist" });
+  }
+});
 
 export const marketController = router;
