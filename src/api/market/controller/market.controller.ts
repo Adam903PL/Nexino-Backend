@@ -363,4 +363,27 @@ router.post("/wishlist/addCoin/:wishlistId", async (req:Request,res:Response) =>
   }
 })
 
+router.get("/wishlists",async (req:Request,res :Response) => {
+  try{
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ error: "No token provided" });
+      return;
+    }
+
+    const userId = (await getUserID(token)).userId;
+    const wishlists = await prisma.wishlist.findMany({
+      where: {userId},
+      include: {
+        items:true
+      }
+    })
+    res.status(StatusCodes.OK).json(wishlists)
+
+  }catch (error){
+    console.error("Error while fetching wishlist:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error while fetching wishlist" });
+  }
+})
+
 export const marketController = router;
