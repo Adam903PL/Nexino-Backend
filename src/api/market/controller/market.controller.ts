@@ -498,4 +498,50 @@ router.delete("/wishlist/:wishlistId", async (req:Request,res:Response) => {
   }
 })
 
+router.put("/wishlist/updateName/:wishlistId", async (req:Request,res:Response) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ error: "No token provided" });
+      return;
+    }
+
+    const userInfo = await getUserID(token);
+    const userId = userInfo.userId;
+    const wishlistId = req.params.wishlistId;
+    const {wishlistName} = req.body;
+
+    if(!wishlistName){
+      res.status(StatusCodes.BAD_REQUEST).json({error: "Wishlist name is required"});
+      return;
+    }
+
+    const existingWishlist = await prisma.wishlist.findUnique({
+      where: {id:wishlistId}
+    });
+
+    if(!existingWishlist){
+      res.status(StatusCodes.NOT_FOUND).json({error: "Wishlist not found"});
+      return;
+    }
+
+    if(existingWishlist.userId != userId){
+      res.status(StatusCodes.UNAUTHORIZED).json({error: "You dont have permission to this wishlist"});
+      return;
+    }
+
+    const updatedWishlist = await prisma.wishlist.update({
+      where: {id:wishlistId},
+      data: {wishlistName},
+      include: {items:true}
+    })
+
+    res.status(StatusCodes.OK).json({message:`wishlist name was changed to ${updatedWishlist.wishlistName}`})
+
+  }catch (error){
+    console.error("Error updating wishlist:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error updating wishlist" });
+  }
+})
+
 export const marketController = router;
