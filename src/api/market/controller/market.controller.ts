@@ -542,6 +542,56 @@ router.put("/wishlist/updateName/:wishlistId", async (req:Request,res:Response) 
     console.error("Error updating wishlist:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error updating wishlist" });
   }
+});
+
+router.patch("/wishlist/batch", async (req:Request,res:Response) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ error: "No token provided" });
+      return;
+    }
+
+    const userInfo = await getUserID(token);
+    const userId = userInfo.userId;
+    const updates = req.body;
+
+    if(!updates || !Array.isArray(updates)){
+      res.status(StatusCodes.BAD_REQUEST).json({error: "valid updates array is required"});
+      return;
+    }
+
+    for (const update of updates){
+      if (!update.wishlistId || !update.wishlistName){
+        res.status(StatusCodes.BAD_REQUEST).json({error: "Each update must contain wishlistId and wishlistName"});
+        return;
+      }
+    }
+
+    const userWishlists = await prisma.wishlist.findMany({
+      where: {userId},
+    });
+
+    const userWishlistsIds = userWishlists.map(list => list.id);
+
+    const allWishlistsOwned = updates.every(update => userWishlistsIds.includes(update.wishlistId));
+
+    if (!allWishlistsOwned){
+      res.status(StatusCodes.FORBIDDEN).json({error: "You dont have persmission to update those wishlists"});
+      return;
+    }
+
+    const updatedWishlists = await prisma.$transaction(updates.map(update => prisma.wishlist.update({
+      where: {id: update.wishlistId},
+      data: {wishlistName: update.wishlistName},
+    })))
+
+    res.status(StatusCodes.OK).json(updatedWishlists)
+
+  }catch (error){
+    console.error("Error updating wishlists in batch:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error updating wishlists in batch" });
+  }
 })
 
 export const marketController = router;
