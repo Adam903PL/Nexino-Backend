@@ -9,20 +9,32 @@ import { walletController } from "./api/wallet/controller/wallet.controller";
 import { marketController } from "./api/market/controller/market.controller";
 import { LootBoxController } from "./api/lootbox/controllers/lootbox.controller";
 import { RateLimiter } from "./middlewares/rateLimiterMiddleware";
+import { ExportController } from "./api/export/controllers/export.controller";
+import cors from 'cors';
+import { GitHubController } from "./api/github/controller/github.controller";
 
 const app = express();
+
+
+app.use(cors({
+  origin: 'http://localhost:3000', 
+  methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'], 
+}));
 
 app.use(bodyParser.json());
 
 app.use(RateLimiter);
 
 app.use("/auth", authController);
-app.use(["/market", "/wallet", "/casino", "/lootbox"], authenticateMiddleware);
+app.use(["/market", "/wallet", "/casino", "/lootbox","/export","/github"], authenticateMiddleware);
 
 app.use("/casino", casinoController);
+app.use("/github",GitHubController)
 app.use("/wallet", walletController);
 app.use("/market", marketController);
 app.use("/lootbox", LootBoxController);
+app.use("/export",ExportController)
 
 app.listen(ENV.PORT, () => {
   console.log(`Server is running on http://localhost:${ENV.PORT}`);

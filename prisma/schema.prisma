@@ -23,6 +23,7 @@ model User {
   createdAt DateTime    @default(now())
   wallets   Wallet[]
   equipment Equipment[]
+  whishlists Wishlist[]
 }
 
 model Wallet {
@@ -41,4 +42,24 @@ model Equipment {
   gunName  String
   gunPrice Float
   user     User   @relation(fields: [userId], references: [id])
+}
+
+
+
+model Wishlist {
+  id           String         @id @default(uuid())
+  userId       String
+  wishlistName String
+  user         User           @relation(fields: [userId], references: [id])
+  items        WishlistItem[]
+}
+
+model WishlistItem {
+  id         String   @id @default(uuid())
+  wishlistId String
+  coinId     String
+  addedAt    DateTime @default(now())
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistId, coinId])
 }
