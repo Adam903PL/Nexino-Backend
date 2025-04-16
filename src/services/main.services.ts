@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { ENV } from "../config/env";
 import { prisma } from "../prisma";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export async function getUserID(token: string) {
   const decoded = jwt.verify(token, ENV.JWT_SECRET || "fallback_secret") as {
@@ -120,51 +120,75 @@ async function getAllWallets() {
   }
 }
 
-export async function updateUserWallet(userId:string, cryptoId:string, winAmount:number) {
-    try {
-      const wallet = await prisma.wallet.findFirst({
-        where: { userId, cryptoId }
-      });
-      
-      if (!wallet) {
-        return {error:"Wallet not found",success:false}
-      }
+export async function updateUserWallet(
+  userId: string,
+  cryptoId: string,
+  Quantity: number
+) {
+  try {
+    const wallet = await prisma.wallet.findFirst({
+      where: { userId, cryptoId },
+    });
 
-      const updatedWallet = await prisma.wallet.update({
-        where: { id: wallet.id },
-        data: { quantity: winAmount }
-      });
-      console.log(updatedWallet);
-      return updatedWallet;
-    } catch (error) {
-      console.error("Error updating wallet:", error);
-      throw error;
+    if (!wallet) {
+      return { error: "You dont have this crypto in your wallet" };
     }
+    const newQuantity = Math.max(0, wallet.quantity + Quantity);
+
+    const updatedWallet = await prisma.wallet.update({
+      where: { id: wallet.id },
+      data: { quantity: newQuantity },
+    });
+
+    return updatedWallet;
+  } catch (error) {
+    console.error("Error updating wallet:", error);
+    throw error;
   }
-  
-  
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-async function main() {
-//   await clearDatabase()
-//   await createdUsers()
-  // await getAllUsers()
-//   await createUserWallet()
-//   await getAllWallets()
-//   await getUserWallet("98e5df30-5e99-4ef4-b06c-c4dbc86558ce")
 }
 
+export async function addCrypto(
+  userId: string,
+  cryptoId: string,
+  quantity: number
+) {
+  try {
+    const updatedWallet = await prisma.wallet.create({
+      data: { userId, cryptoId, quantity },
+    });
+
+    return updatedWallet;
+  } catch (error) {
+    console.error("Error updating wallet:", error);
+    throw error;
+  }
+}
+
+export async function UpdateUserMoney(userId: string, MoneyToUpdate: number) {
+  const Money = await prisma.user.update({
+    where: { id: userId },
+    data: { money: { increment: MoneyToUpdate } },
+  });
+  return Money.money;
+}
+
+async function main() {
+  // await clearDatabase()
+  // await createdUsers()
+  // await getAllUsers()
+  //   await createUserWallet()
+  //   await getAllWallets()
+  //   await getUserWallet("98e5df30-5e99-4ef4-b06c-c4dbc86558ce")
+  // const Item = await prisma.equipment.findMany({
+  //   where: { userId: "98e5df30-5e99-4ef4-b06c-c4dbc86558ce", gunId: 14 },
+  // });
+  // console.log(Item);
+
+  const items = await prisma.equipment.findMany({
+    where: {
+      userId: "98e5df30-5e99-4ef4-b06c-c4dbc86558ce",
+    },
+  });
+
+  let MoneyToUpdate = 0;
+}

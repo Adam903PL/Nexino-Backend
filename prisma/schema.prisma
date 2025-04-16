@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
 }
 
@@ -13,21 +13,53 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
- 
- model User {
-  id        String   @id @default(uuid()) 
-  email     String   @unique 
-  password  String   
-  name      String?  
-  createdAt DateTime @default(now()) 
-  wallets   Wallet[] 
+
+model User {
+  id        String      @id @default(uuid())
+  email     String      @unique
+  password  String
+  name      String?
+  money Float @default(0)
+  createdAt DateTime    @default(now())
+  wallets   Wallet[]
+  equipment Equipment[]
+  whishlists Wishlist[]
 }
 
 model Wallet {
-  id        String   @id @default(uuid()) 
-  userId    String   
-  cryptoId  String   
-  quantity  Float    
-  user      User     @relation(fields: [userId], references: [id]) 
-  updatedAT DateTime @default(now()) 
+  id        String   @id @default(uuid())
+  userId    String
+  cryptoId  String
+  quantity  Float
+  user      User     @relation(fields: [userId], references: [id])
+  updatedAT DateTime @default(now())
+}
+
+model Equipment {
+  id       String @id @default(uuid())
+  userId   String
+  gunId    Int
+  gunName  String
+  gunPrice Float
+  user     User   @relation(fields: [userId], references: [id])
+}
+
+
+
+model Wishlist {
+  id           String         @id @default(uuid())
+  userId       String
+  wishlistName String
+  user         User           @relation(fields: [userId], references: [id])
+  items        WishlistItem[]
+}
+
+model WishlistItem {
+  id         String   @id @default(uuid())
+  wishlistId String
+  coinId     String
+  addedAt    DateTime @default(now())
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistId, coinId])
 }
