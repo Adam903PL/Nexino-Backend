@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
@@ -15,14 +9,14 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  email     String      @unique
-  password  String
-  name      String?
-  money Float @default(0)
-  createdAt DateTime    @default(now())
-  wallets   Wallet[]
-  equipment Equipment[]
+  id         String      @id @default(uuid())
+  email      String      @unique
+  name       String?
+  createdAt  DateTime    @default(now())
+  password   String
+  money      Float       @default(0)
+  equipment  Equipment[]
+  wallets    Wallet[]
   whishlists Wishlist[]
 }
 
@@ -31,8 +25,8 @@ model Wallet {
   userId    String
   cryptoId  String
   quantity  Float
-  user      User     @relation(fields: [userId], references: [id])
   updatedAT DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Equipment {
@@ -43,8 +37,6 @@ model Equipment {
   gunPrice Float
   user     User   @relation(fields: [userId], references: [id])
 }
-
-
 
 model Wishlist {
   id           String         @id @default(uuid())
@@ -62,4 +54,13 @@ model WishlistItem {
   wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
 
   @@unique([wishlistId, coinId])
+}
+
+
+model Casino {
+  id        String   @id @default(uuid())
+  name      String
+  latitude  Float
+  longitude Float
+  createdAt DateTime @default(now())
 }

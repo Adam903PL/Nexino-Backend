@@ -12,6 +12,7 @@ import { RateLimiter } from "./middlewares/rateLimiterMiddleware";
 import { ExportController } from "./api/export/controllers/export.controller";
 import cors from 'cors';
 import { GitHubController } from "./api/github/controller/github.controller";
+import { LocalisationController } from "./api/localisation/controller/Localisation.controller";
 
 const app = express();
 
@@ -33,7 +34,8 @@ app.use("/github",GitHubController)
 app.use("/wallet", walletController);
 app.use("/market", marketController);
 app.use("/lootbox", LootBoxController);
-app.use("/export",ExportController)
+app.use("/export",ExportController);
+app.use("/localisation", LocalisationController)
 
 app.listen(ENV.PORT, () => {
   console.log(`Server is running on http://localhost:${ENV.PORT}`);
