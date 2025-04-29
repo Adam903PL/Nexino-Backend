@@ -1,0 +1,124 @@
+{
+    "info": {
+      "_postman_id": "def456ghi789",
+      "name": "Casino API",
+      "description": "Kolekcja do testowania endpointów kasyna",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+      {
+        "key": "baseURL",
+        "value": "http://localhost:3000",
+        "type": "string"
+      },
+      {
+        "key": "authToken",
+        "value": "twoj_token_jwt",
+        "type": "string"
+      }
+    ],
+    "item": [
+      {
+        "name": "Casino API",
+        "description": "Endpointy związane z grami kasynowymi",
+        "item": [
+          {
+            "name": "Slot Machine",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{authToken}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"betInt\": 100,\n    \"cryptoId\": \"crypto123\"\n}"
+              },
+              "url": {
+                "raw": "{{baseURL}}/casino/slot-machine",
+                "host": [
+                  "{{baseURL}}"
+                ],
+                "path": [
+                  "casino",
+                  "slot-machine"
+                ]
+              },
+              "description": "Gra na automacie (jednoręki bandyta)"
+            },
+            "response": []
+          },
+          {
+            "name": "Roulette",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{authToken}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"betInt\": 100,\n    \"cryptoId\": \"crypto123\",\n    \"betChoice\": {\n        \"type\": \"color\",\n        \"value\": \"red\"\n    }\n}"
+              },
+              "url": {
+                "raw": "{{baseURL}}/casino/roulette",
+                "host": [
+                  "{{baseURL}}"
+                ],
+                "path": [
+                  "casino",
+                  "roulette"
+                ]
+              },
+              "description": "Gra w ruletkę"
+            },
+            "response": []
+          },
+          {
+            "name": "Coin Flip",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{authToken}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"betInt\": 100,\n    \"cryptoId\": \"crypto123\",\n    \"betChoice\": \"heads\"\n}"
+              },
+              "url": {
+                "raw": "{{baseURL}}/casino/coin-flip",
+                "host": [
+                  "{{baseURL}}"
+                ],
+                "path": [
+                  "casino",
+                  "coin-flip"
+                ]
+              },
+              "description": "Gra w rzut monetą (orzeł/reszka)"
+            },
+            "response": []
+          }
+        ]
+      }
+    ]
+  }

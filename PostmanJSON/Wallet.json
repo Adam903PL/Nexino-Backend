@@ -1,0 +1,111 @@
+{
+    "info": {
+      "_postman_id": "8b6c0d9e-7f5a-4b3c-9d2e-1a0f8c7d6e5b",
+      "name": "Wallet API",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+      {
+        "key": "baseURL",
+        "value": "http://localhost:3000",
+        "type": "string"
+      },
+      {
+        "key": "authToken",
+        "value": "your_auth_token_here",
+        "type": "string"
+      }
+    ],
+    "item": [
+      {
+        "name": "Get User Wallet",
+        "request": {
+          "method": "GET",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{authToken}}",
+              "type": "text"
+            }
+          ],
+          "url": {
+            "raw": "{{baseURL}}/wallet",
+            "host": [
+              "{{baseURL}}"
+            ],
+            "path": [
+              "wallet"
+            ]
+          },
+          "description": "Get the current user's wallet contents"
+        },
+        "response": []
+      },
+      {
+        "name": "Add Crypto to Wallet",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{authToken}}",
+              "type": "text"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"cryptoId\": \"bitcoin\",\n    \"quantity\": 0.01\n}"
+          },
+          "url": {
+            "raw": "{{baseURL}}/wallet",
+            "host": [
+              "{{baseURL}}"
+            ],
+            "path": [
+              "wallet"
+            ]
+          },
+          "description": "Add cryptocurrency to the user's wallet"
+        },
+        "response": []
+      },
+      {
+        "name": "Update Wallet",
+        "request": {
+          "method": "PUT",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{authToken}}",
+              "type": "text"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"cryptoId\": \"bitcoin\",\n    \"quantity\": 0.05\n}"
+          },
+          "url": {
+            "raw": "{{baseURL}}/wallet",
+            "host": [
+              "{{baseURL}}"
+            ],
+            "path": [
+              "wallet"
+            ]
+          },
+          "description": "Update the quantity of a cryptocurrency in the user's wallet"
+        },
+        "response": []
+      }
+    ]
+  }
