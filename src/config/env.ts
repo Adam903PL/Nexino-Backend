@@ -18,4 +18,5 @@ export const ENV = {
   JWT_SECRET:getEnvironment("JWT_SECRET"),
   COIN_GEKO_API:getEnvironment("COIN_GEKO_API"),
   REDIS_URL:getEnvironment("REDIS_URL"),
+  GOOGLE_CASINO_API: getEnvironment("GOOGLE_CASINO_API")
 };

@@ -1,0 +1,197 @@
+{
+	"info": {
+	  "name": "Casino Localisation API",
+	  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+	  "description": "Kolekcja endpointów dla kontrolera lokalizacji kasyn"
+	},
+	"variable": [
+	  {
+		"key": "baseUrl",
+		"value": "http://localhost:3333",
+		"type": "string"
+	  },
+	  {
+		"key": "authToken",
+		"value": "your-auth-token-here",
+		"type": "string"
+	  }
+	],
+	"item": [
+	  {
+		"name": "Get All Casinos",
+		"request": {
+		  "method": "GET",
+		  "header": [
+			{
+			  "key": "Authorization",
+			  "value": "Bearer {{authToken}}",
+			  "type": "text"
+			}
+		  ],
+		  "url": {
+			"raw": "{{baseUrl}}/localisation",
+			"host": ["{{baseUrl}}"],
+			"path": ["localisation"]
+		  },
+		  "description": "Pobierz listę wszystkich kasyn"
+		},
+		"response": []
+	  },
+	  {
+		"name": "Get Casino By ID",
+		"request": {
+		  "method": "GET",
+		  "header": [
+			{
+			  "key": "Authorization",
+			  "value": "Bearer {{authToken}}",
+			  "type": "text"
+			}
+		  ],
+		  "url": {
+			"raw": "{{baseUrl}}/localisation/:id",
+			"host": ["{{baseUrl}}"],
+			"path": ["localisation", ":id"],
+			"variable": [
+			  {
+				"key": "id",
+				"value": "",
+				"description": "ID kasyna"
+			  }
+			]
+		  },
+		  "description": "Pobierz szczegóły kasyna po ID"
+		},
+		"response": []
+	  },
+	  {
+		"name": "Create Casino",
+		"request": {
+		  "method": "POST",
+		  "header": [
+			{
+			  "key": "Authorization",
+			  "value": "Bearer {{authToken}}",
+			  "type": "text"
+			},
+			{
+			  "key": "Content-Type",
+			  "value": "application/json",
+			  "type": "text"
+			}
+		  ],
+		  "body": {
+			"mode": "raw",
+			"raw": "{\n    \"name\": \"Grand Casino\",\n    \"address\": \"ul. Przykładowa 123\",\n    \"city\": \"Warszawa\",\n    \"latitude\": 52.2297,\n    \"longitude\": 21.0122\n}"
+		  },
+		  "url": {
+			"raw": "{{baseUrl}}/localisation",
+			"host": ["{{baseUrl}}"],
+			"path": ["localisation"]
+		  },
+		  "description": "Dodaj nowe kasyno"
+		},
+		"response": []
+	  },
+	  {
+		"name": "Update Casino",
+		"request": {
+		  "method": "PUT",
+		  "header": [
+			{
+			  "key": "Authorization",
+			  "value": "Bearer {{authToken}}",
+			  "type": "text"
+			},
+			{
+			  "key": "Content-Type",
+			  "value": "application/json",
+			  "type": "text"
+			}
+		  ],
+		  "body": {
+			"mode": "raw",
+			"raw": "{\n    \"name\": \"Grand Casino Updated\",\n    \"address\": \"ul. Nowa 456\",\n    \"city\": \"Warszawa\",\n    \"latitude\": 52.2297,\n    \"longitude\": 21.0122\n}"
+		  },
+		  "url": {
+			"raw": "{{baseUrl}}/localisation/:id",
+			"host": ["{{baseUrl}}"],
+			"path": ["localisation", ":id"],
+			"variable": [
+			  {
+				"key": "id",
+				"value": "",
+				"description": "ID kasyna do zaktualizowania"
+			  }
+			]
+		  },
+		  "description": "Zaktualizuj dane kasyna"
+		},
+		"response": []
+	  },
+	  {
+		"name": "Delete Casino",
+		"request": {
+		  "method": "DELETE",
+		  "header": [
+			{
+			  "key": "Authorization",
+			  "value": "Bearer {{authToken}}",
+			  "type": "text"
+			}
+		  ],
+		  "url": {
+			"raw": "{{baseUrl}}/localisation/:id",
+			"host": ["{{baseUrl}}"],
+			"path": ["localisation", ":id"],
+			"variable": [
+			  {
+				"key": "id",
+				"value": "",
+				"description": "ID kasyna do usunięcia"
+			  }
+			]
+		  },
+		  "description": "Usuń kasyno"
+		},
+		"response": []
+	  },
+	  {
+		"name": "Find Nearby Casinos",
+		"request": {
+		  "method": "GET",
+		  "header": [
+			{
+			  "key": "Authorization",
+			  "value": "Bearer {{authToken}}",
+			  "type": "text"
+			}
+		  ],
+		  "url": {
+			"raw": "{{baseUrl}}/localisation/nearby?lat=52.2297&lon=21.0122&radius=5",
+			"host": ["{{baseUrl}}"],
+			"path": ["localisation", "nearby"],
+			"query": [
+			  {
+				"key": "lat",
+				"value": "52.2297",
+				"description": "Szerokość geograficzna punktu"
+			  },
+			  {
+				"key": "lon",
+				"value": "21.0122",
+				"description": "Długość geograficzna punktu"
+			  },
+			  {
+				"key": "radius",
+				"value": "5",
+				"description": "Promień wyszukiwania w kilometrach (domyślnie 10)"
+			  }
+			]
+		  },
+		  "description": "Znajdź kasyna w określonym promieniu od podanego punktu"
+		},
+		"response": []
+	  }
+	]
+  }
