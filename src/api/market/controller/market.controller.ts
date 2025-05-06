@@ -10,8 +10,53 @@ import { prisma } from "../../../prisma";
 import { getCryptoPriceInUSD } from "../services/market.services";
 import { ENV } from "../../../config/env";
 
+/**
+ * @swagger
+ * tags:
+ *   name: Market
+ *   description: Cryptocurrency market operations
+ */
+
 const router = express.Router();
 
+/**
+ * @swagger
+ * /market/price/{coin}:
+ *   get:
+ *     summary: Get the current price of a cryptocurrency
+ *     tags: [Market]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: coin
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Cryptocurrency ID (e.g., bitcoin)
+ *     responses:
+ *       200:
+ *         description: Cryptocurrency price information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 symbol:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 current_price:
+ *                   type: number
+ *                 price_change_24h:
+ *                   type: number
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Failed to fetch crypto data
+ */
 router.get("/price/:coin", async (req: Request, res: Response) => {
   try {
     const coinId = req.params.coin;
@@ -45,6 +90,47 @@ router.get("/price/:coin", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @swagger
+ * /market/buy/{coin}:
+ *   post:
+ *     summary: Buy cryptocurrency
+ *     tags: [Market]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: coin
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Cryptocurrency ID to buy
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - quantity
+ *             properties:
+ *               quantity:
+ *                 type: number
+ *                 description: Amount of cryptocurrency to buy
+ *     responses:
+ *       200:
+ *         description: Cryptocurrency purchased successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Bad request or validation error
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Error buying crypto
+ */
 router.post("/buy/:coin", async (req: Request, res: Response) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -103,6 +189,49 @@ router.post("/buy/:coin", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @swagger
+ * /market/sell/{coin}:
+ *   post:
+ *     summary: Sell cryptocurrency
+ *     tags: [Market]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: coin
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Cryptocurrency ID to sell
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - quantity
+ *             properties:
+ *               quantity:
+ *                 type: number
+ *                 description: Amount of cryptocurrency to sell
+ *     responses:
+ *       200:
+ *         description: Cryptocurrency sold successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Bad request or validation error
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Error selling crypto
+ */
 router.post("/sell/:coin", async (req: Request, res: Response) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -170,6 +299,37 @@ router.post("/sell/:coin", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @swagger
+ * /market/trends:
+ *   get:
+ *     summary: Get cryptocurrency market trends
+ *     tags: [Market]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Market trends data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   symbol:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   current_price:
+ *                     type: number
+ *                   price_change_percentage_24h:
+ *                     type: number
+ *       500:
+ *         description: Failed to fetch market trends
+ */
 router.get("/trends", async (req: Request, res: Response) => {
   try {
     const response = await axios.get(

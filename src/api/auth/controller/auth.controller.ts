@@ -18,6 +18,55 @@ const hashPassword = async (password: string) => {
   return await bcrypt.hash(password, salt);
 };
 
+/**
+ * @swagger
+ * /api/auth/generate-token:
+ *   post:
+ *     summary: Logowanie użytkownika i generowanie tokena JWT
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 example: yourpassword
+ *     responses:
+ *       200:
+ *         description: Zwraca token JWT i dane użytkownika
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                 expiresIn:
+ *                   type: string
+ *                   example: 24h
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *       401:
+ *         description: Niepoprawne dane logowania
+ *       500:
+ *         description: Błąd serwera
+ */
+
 authController.post("/generate-token", async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -59,6 +108,41 @@ authController.post("/generate-token", async (req: Request, res: Response) => {
     });
   }
 });
+
+/**
+ * @swagger
+ * /api/auth:
+ *   delete:
+ *     summary: Usunięcie konta użytkownika
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - userName
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               userName:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Użytkownik usunięty pomyślnie
+ *       401:
+ *         description: Niepoprawne hasło
+ *       404:
+ *         description: Użytkownik nie znaleziony
+ *       500:
+ *         description: Błąd serwera
+ */
 
 
 authController.delete("/", async (req: Request, res: Response) => {
@@ -102,6 +186,36 @@ authController.delete("/", async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error deleting user" });
   }
 });
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Rejestracja nowego użytkownika
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - userName
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               userName:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Użytkownik zarejestrowany
+ *       500:
+ *         description: Błąd serwera
+ */
 
 authController.post("/register", async (req: Request, res: Response) => {
   try {

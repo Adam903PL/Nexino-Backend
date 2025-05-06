@@ -63,3 +63,12 @@ model WishlistItem {
 
   @@unique([wishlistId, coinId])
 }
+
+
+model Casino {
+  id        String   @id @default(uuid())
+  name      String
+  latitude  Float
+  longitude Float
+  createdAt DateTime @default(now())
+}
