@@ -10,8 +10,45 @@ import { plainToInstance } from "class-transformer";
 import { WalletDTO } from "../dto/Wallet.dto";
 import { validate } from "class-validator";
 
+/**
+ * @swagger
+ * tags:
+ *   name: Wallet
+ *   description: User wallet management
+ */
+
 export const walletController = express.Router();
 
+/**
+ * @swagger
+ * /wallet:
+ *   get:
+ *     summary: Get user's wallet information
+ *     tags: [Wallet]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User's wallet retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 userWallet:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       cryptoId:
+ *                         type: string
+ *                       quantity:
+ *                         type: number
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 walletController.get("/", async (req: Request, res: Response) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -31,6 +68,47 @@ walletController.get("/", async (req: Request, res: Response) => {
 
 
 
+/**
+ * @swagger
+ * /wallet:
+ *   post:
+ *     summary: Add cryptocurrency to user's wallet
+ *     tags: [Wallet]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - cryptoId
+ *               - quantity
+ *             properties:
+ *               cryptoId:
+ *                 type: string
+ *                 description: ID of the cryptocurrency to add
+ *               quantity:
+ *                 type: number
+ *                 description: Amount of cryptocurrency to add
+ *     responses:
+ *       200:
+ *         description: Cryptocurrency added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Bad request or validation error
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 walletController.post("/", async (req: Request, res: Response) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -81,6 +159,47 @@ walletController.post("/", async (req: Request, res: Response) => {
 
 
 
+/**
+ * @swagger
+ * /wallet:
+ *   put:
+ *     summary: Update cryptocurrency amount in user's wallet
+ *     tags: [Wallet]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - cryptoId
+ *               - quantity
+ *             properties:
+ *               cryptoId:
+ *                 type: string
+ *                 description: ID of the cryptocurrency to update
+ *               quantity:
+ *                 type: number
+ *                 description: New amount of cryptocurrency
+ *     responses:
+ *       200:
+ *         description: Wallet updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 updatedWallet:
+ *                   type: object
+ *       400:
+ *         description: Bad request or validation error
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 walletController.put("/", async (req: Request, res: Response) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];

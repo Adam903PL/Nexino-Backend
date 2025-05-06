@@ -7,6 +7,13 @@ import { StatusCodes } from 'http-status-codes';
 import express from 'express';
 import { Casino } from '@prisma/client';
 
+/**
+ * @swagger
+ * tags:
+ *   name: Localisation
+ *   description: Casino location management
+ */
+
 export const LocalisationController = express.Router()
 
 type CasinoWithDistance = Casino & { distance: number }; //Przyda się potem, wiadomo że na razie nie ma tabelki
@@ -26,6 +33,51 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   }
 
 
+/**
+ * @swagger
+ * /localisation:
+ *   post:
+ *     summary: Create a new casino location
+ *     tags: [Localisation]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - latitude
+ *               - longitude
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the casino
+ *               latitude:
+ *                 type: number
+ *                 description: Latitude coordinate
+ *               longitude:
+ *                 type: number
+ *                 description: Longitude coordinate
+ *     responses:
+ *       201:
+ *         description: Casino created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Validation error
+ *       500:
+ *         description: Server error
+ */
 LocalisationController.post('/', async (req: Request, res: Response) => {
     try {
       const dto = plainToInstance(LocalisationDto, req.body);
@@ -75,6 +127,40 @@ LocalisationController.post('/', async (req: Request, res: Response) => {
     return;
   });
   
+/**
+ * @swagger
+ * /localisation:
+ *   get:
+ *     summary: Get all casino locations
+ *     tags: [Localisation]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all casinos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       latitude:
+ *                         type: number
+ *                       longitude:
+ *                         type: number
+ *       500:
+ *         description: Server error
+ */
 LocalisationController.get('/', async (_req: Request, res: Response) => {
     try {
       const casinos = await prisma.casino.findMany();
@@ -92,6 +178,66 @@ LocalisationController.get('/', async (_req: Request, res: Response) => {
 //dobra, podajecie promień, wysokość i długość geograficzną, i zwraca kasyna w danym promieniu od punktu którego wsp podaliście
 // np /nearby?lat=52.2297&lon=21.0122&radius=5 zwróci w odległości 5 km od Warszawy
 // Endpoint musi być przed /:id, inaczej Express zinterpretuje '/nearby' jako parametr id
+/**
+ * @swagger
+ * /localisation/nearby:
+ *   get:
+ *     summary: Find casinos near a specified location
+ *     tags: [Localisation]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: lat
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Latitude coordinate
+ *       - in: query
+ *         name: lon
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Longitude coordinate
+ *       - in: query
+ *         name: radius
+ *         schema:
+ *           type: number
+ *           default: 10
+ *         description: Search radius in kilometers
+ *     responses:
+ *       200:
+ *         description: List of nearby casinos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 count:
+ *                   type: integer
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       latitude:
+ *                         type: number
+ *                       longitude:
+ *                         type: number
+ *                       distance:
+ *                         type: number
+ *                         description: Distance in kilometers
+ *       400:
+ *         description: Invalid coordinates
+ *       500:
+ *         description: Server error
+ */
 LocalisationController.get('/nearby', async (req: Request, res: Response) => {
     const { lat, lon, radius = '10' } = req.query;
   
@@ -136,6 +282,47 @@ LocalisationController.get('/nearby', async (req: Request, res: Response) => {
     return;
 });
   
+/**
+ * @swagger
+ * /localisation/{id}:
+ *   get:
+ *     summary: Get a casino by ID
+ *     tags: [Localisation]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Casino ID
+ *     responses:
+ *       200:
+ *         description: Casino details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     latitude:
+ *                       type: number
+ *                     longitude:
+ *                       type: number
+ *       404:
+ *         description: Casino not found
+ *       500:
+ *         description: Server error
+ */
 LocalisationController.get('/:id', async (req: Request, res: Response) => {
     try {
       const casino = await prisma.casino.findUnique({
@@ -157,6 +344,60 @@ LocalisationController.get('/:id', async (req: Request, res: Response) => {
     return;
 });
   
+/**
+ * @swagger
+ * /localisation/{id}:
+ *   put:
+ *     summary: Update a casino
+ *     tags: [Localisation]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Casino ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - latitude
+ *               - longitude
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the casino
+ *               latitude:
+ *                 type: number
+ *                 description: Latitude coordinate
+ *               longitude:
+ *                 type: number
+ *                 description: Longitude coordinate
+ *     responses:
+ *       200:
+ *         description: Casino updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Validation error
+ *       404:
+ *         description: Casino not found
+ *       500:
+ *         description: Server error
+ */
 LocalisationController.put('/:id', async (req: Request, res: Response) => {
     try {
       const dto = plainToInstance(LocalisationDto, req.body);
@@ -216,6 +457,36 @@ LocalisationController.put('/:id', async (req: Request, res: Response) => {
     return;
 });
   
+/**
+ * @swagger
+ * /localisation/{id}:
+ *   delete:
+ *     summary: Delete a casino
+ *     tags: [Localisation]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Casino ID
+ *     responses:
+ *       200:
+ *         description: Casino deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Casino not found
+ *       500:
+ *         description: Server error
+ */
 LocalisationController.delete('/:id', async (req: Request, res: Response) => {
     try {
       const existingCasino = await prisma.casino.findUnique({

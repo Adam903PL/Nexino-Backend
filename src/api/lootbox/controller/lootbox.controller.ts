@@ -9,7 +9,45 @@ import random from "random";
 import { getAllGuns, SellItem } from "../services/lootbox.services";
 import { redis } from "../../../config/redis";
 
+/**
+ * @swagger
+ * tags:
+ *   name: Lootbox
+ *   description: Lootbox and equipment management
+ */
+
 export const LootBoxController = express.Router();
+/**
+ * @swagger
+ * /lootbox/eq:
+ *   get:
+ *     summary: Get user's equipment
+ *     tags: [Lootbox]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User's equipment retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   gunId:
+ *                     type: number
+ *                   gunName:
+ *                     type: string
+ *                   gunPrice:
+ *                     type: number
+ *                   quantity:
+ *                     type: number
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 LootBoxController.get("/eq", async (req: Request, res: Response) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -70,6 +108,51 @@ LootBoxController.get("/eq", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @swagger
+ * /lootbox/open-case:
+ *   post:
+ *     summary: Open a lootbox case
+ *     tags: [Lootbox]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: caseId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the case to open
+ *     responses:
+ *       200:
+ *         description: Case opened successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 item:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                     type:
+ *                       type: number
+ *                     rarity:
+ *                       type: number
+ *                     price:
+ *                       type: number
+ *       400:
+ *         description: Bad request or not enough money
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Case not found
+ *       500:
+ *         description: Internal server error
+ */
 LootBoxController.post("/open-case", async (req: Request, res: Response) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -213,6 +296,51 @@ LootBoxController.post("/open-case", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @swagger
+ * /lootbox/sell-item:
+ *   post:
+ *     summary: Sell an item from user's equipment
+ *     tags: [Lootbox]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - itemId
+ *               - quantity
+ *             properties:
+ *               itemId:
+ *                 type: number
+ *                 description: ID of the item to sell
+ *               quantity:
+ *                 type: number
+ *                 description: Quantity of items to sell
+ *     responses:
+ *       200:
+ *         description: Item sold successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 AccountStatus:
+ *                   type: object
+ *                 details:
+ *                   type: object
+ *       400:
+ *         description: Bad request or insufficient items
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 LootBoxController.post("/sell-item", async (req: Request, res: Response) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -268,6 +396,33 @@ LootBoxController.post("/sell-item", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @swagger
+ * /lootbox/sell-all-item:
+ *   post:
+ *     summary: Sell all items from user's equipment
+ *     tags: [Lootbox]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All items sold successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 AccountStatus:
+ *                   type: object
+ *       400:
+ *         description: No items in equipment
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 LootBoxController.post("/sell-all-item",
   async (req: Request, res: Response) => {
     try {
@@ -333,6 +488,26 @@ LootBoxController.post("/sell-all-item",
 
 
 
+/**
+ * @swagger
+ * /lootbox/guns:
+ *   get:
+ *     summary: Get all available guns
+ *     tags: [Lootbox]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all guns
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *       500:
+ *         description: Internal server error
+ */
 LootBoxController.get("/guns",async (req:Request,res:Response)=>{
   try{
     const guns = await getAllGuns()
